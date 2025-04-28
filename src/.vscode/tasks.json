@@ -70,6 +70,49 @@
             ],
             "problemMatcher": "$msCompile",
             "dependsOn": "clean"
-        }
+        },
+        {
+            "label": "build-elf-functions",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "Elf.Functions/Elf.Functions.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile",
+            "detail": "Builds the Elf.Functions project"
+        },
+        {
+            "label": "clean-elf-functions",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "Elf.Functions/Elf.Functions.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "detail": "Cleans the Elf.Functions project"
+        },
+        {
+            "label": "publish-elf-functions-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "Elf.Functions/Elf.Functions.csproj",
+                "--configuration",
+                "Release",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "dependsOn": "clean-elf-functions",
+            "detail": "Publishes the Elf.Functions project in Release mode"
+        }        
     ]
 }
