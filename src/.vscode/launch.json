@@ -2,13 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Elf.Api",
+            "name": "ELF API",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-elf-api",
             "program": "${workspaceFolder}/Elf.Api/bin/Debug/net9.0/Elf.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Elf.Api",
-        }                
+        },
+        {
+            "name": "ELF Functions",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:azureFunctions.pickProcess}"
+        }               
     ]
 }

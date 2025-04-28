@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "ELF_API_BASE_URL": "http://localhost:5271",
+    "SEARCH_ENDPOINT": "https://<your-search-service-name>.search.windows.net",
+    "SEARCH_INDEX_NAME": "<your-ai-search-index-name>",
+    "AZURE_OPENAI_ENDPOINT": "https://<your-openai-service-name>.openai.azure.com/",
+    "AZURE_OPENAI_EMBEDDING_MODEL": "<your-text-embedding-model>",
+    "BLOB_STORAGE_ENDPOINT": "https://<your-storage-account-name>.blob.core.windows.net/",
+    "STORAGE_ACCOUNT_KEY": "<your-storage-account-key>"
+  }
+}

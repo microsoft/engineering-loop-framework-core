@@ -1,4 +1,10 @@
 {
     "appService.preDeployTask": "publish-release",
-    "appService.deploySubpath": "Elf.Api/bin/Release/net9.0/publish"
+    "appService.deploySubpath": "Elf.Api/bin/Release/net9.0/publish",
+    "azureFunctions.deploySubpath": "Elf.Functions/bin/Release/net8.0/publish",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.preDeployTask": "publish-elf-functions-release"        
 }
+
