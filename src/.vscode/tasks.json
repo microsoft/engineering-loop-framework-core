@@ -1,0 +1,75 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-elf-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "Elf.Api/Elf.Api.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile",
+            "detail": "Builds the Elf.Api project"
+        },
+        {
+            "label": "clean-elf-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "Elf.Api/Elf.Api.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "detail": "Cleans the Elf.Api project"
+        },
+        {
+            "label": "publish-elf-api-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "Elf.Api/Elf.Api.csproj",
+                "--configuration",
+                "Release",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "dependsOn": "clean-elf-api",
+            "detail": "Publishes the Elf.Api project in Release mode"
+        },
+        {
+            "label": "clean",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/Elf.Api",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/Elf.Api",
+                "--configuration",
+                "Release",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "dependsOn": "clean"
+        }
+    ]
+}

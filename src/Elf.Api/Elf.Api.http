@@ -1,0 +1,12 @@
+@Elf.Api_HostAddress = http://localhost:5271
+@owner = <repository-owner>>
+@repo = <repository-name>
+
+
+### Get all labels for a specific repository
+GET {{Elf.Api_HostAddress}}/issues/{{owner}}/{{repo}}/labels
+Accept: application/json
+
+###
+GET {{Elf.Api_HostAddress}}/swagger/v1/swagger.json
+Accept: application/json

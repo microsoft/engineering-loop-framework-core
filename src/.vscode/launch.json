@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Elf.Api",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-elf-api",
+            "program": "${workspaceFolder}/Elf.Api/bin/Debug/net9.0/Elf.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Elf.Api",
+        }                
+    ]
+}
