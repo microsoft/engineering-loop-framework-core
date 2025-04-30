@@ -75,6 +75,12 @@ builder.Services.AddHttpClient("ElfApiClient", client =>
         throw new InvalidOperationException("Environment variable 'ELF_API_BASE_URL' is not set.");
     }
 
+    var apiKey = Environment.GetEnvironmentVariable("ELF_API_KEY");
+    if (!string.IsNullOrEmpty(apiKey))
+    {
+        client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey);
+    }
+
     client.BaseAddress = new Uri(baseAddress);
     client.DefaultRequestHeaders.Add("User-Agent", "Elf.ExportFunctions");
 });
