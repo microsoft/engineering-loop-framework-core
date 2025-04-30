@@ -69,7 +69,8 @@ namespace Elf.Functions
                 worksheet.Cell(1, 6).Value = "Labels";
                 worksheet.Cell(1, 7).Value = "Created By";
                 worksheet.Cell(1, 8).Value = "URL"; 
-                worksheet.Cell(1, 9).Value = "MBR";               
+                worksheet.Cell(1, 9).Value = "MBR";
+                worksheet.Cell(1, 10).Value = "Comments";               
 
                 for (int i = 0; i < issues.Count; i++)
                 {
@@ -84,7 +85,11 @@ namespace Elf.Functions
                     worksheet.Cell(row, 6).Value = string.Join(", ", issue.Labels ?? []);
                     worksheet.Cell(row, 7).Value = issue.Author;
                     worksheet.Cell(row, 8).Value = issue.HtmlUrl;
-                    worksheet.Cell(row, 9).Value = issue.Labels != null && issue.Labels.Contains("MBR") ? "Yes" : "No"; // Check if MBR label exists
+                    worksheet.Cell(row, 9).Value = issue.Labels != null && issue.Labels.Contains("MBR") ? "Yes" : "No";
+                    // Concatenate comments with "---" as a delimiter
+                    worksheet.Cell(row, 10).Value = issue.Comments != null && issue.Comments.Any()
+                        ? string.Join(" --- ", issue.Comments.Select(c => $"{c.Author}: {c.Body}"))
+                        : "";                    
                 }
 
                 var stream = new MemoryStream();
