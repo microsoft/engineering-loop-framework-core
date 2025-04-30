@@ -3,7 +3,8 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "ELF_API_BASE_URL": "http://localhost:5271",
+    "ELF_API_BASE_URL": "https://<elf.api.com/v1/>",
+    "ELF_API_KEY": "<your-api-key>",
     "SEARCH_ENDPOINT": "https://<your-search-service-name>.search.windows.net",
     "SEARCH_INDEX_NAME": "<your-ai-search-index-name>",
     "AZURE_OPENAI_ENDPOINT": "https://<your-openai-service-name>.openai.azure.com/",

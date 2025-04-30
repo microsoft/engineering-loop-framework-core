@@ -38,7 +38,8 @@ namespace Elf.Functions.Utilities
 
             var queryString = queryParameters.Count > 0 ? $"?{string.Join("&", queryParameters)}" : string.Empty;
 
-            var response = await _httpClient.GetAsync($"/issues/{request.Owner}/{request.Repo}{queryString}");
+            var requestUrl = $"issues/{request.Owner}/{request.Repo}{queryString}";
+            var response = await _httpClient.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Failed to fetch issues from Elf.Api. Status Code: {StatusCode}", response.StatusCode);
