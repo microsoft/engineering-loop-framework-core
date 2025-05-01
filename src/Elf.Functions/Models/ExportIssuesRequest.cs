@@ -15,5 +15,8 @@ namespace Elf.Functions.Models
         
         [JsonPropertyName("comments")]
         public bool Comments { get; set; } = false;
+
+        [JsonPropertyName("filename")]
+        public string Filename { get; set; } = string.Empty;
     }
 }
