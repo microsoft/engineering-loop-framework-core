@@ -39,7 +39,7 @@ namespace Elf.Functions
             {  
                 // Read the request body and validate the input
                 var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                var request = JsonSerializer.Deserialize<ExportIssuesRequest>(requestBody);                
+                var request = JsonSerializer.Deserialize<ExportIssuesRequest>(requestBody);                                
                 if (request == null || string.IsNullOrEmpty(request.Owner) || string.IsNullOrEmpty(request.Repo))
                 {
                     _logger.LogError("Invalid request. 'Owner' and 'Repo' are required.");
@@ -112,7 +112,11 @@ namespace Elf.Functions
 
                 // Upload the file to Azure Blob Storage
                 var containerName = "issues";
-                var blobName = $"issues-{DateTime.UtcNow:yyyyMMddHHmmss}.xlsx";
+
+                // Check if a filename is provided in the request
+                var blobName = !string.IsNullOrEmpty(request.Filename)
+                    ? request.Filename
+                    : $"issues-{DateTime.UtcNow:yyyyMMddHHmmss}.xlsx";
 
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
                 await containerClient.CreateIfNotExistsAsync();
