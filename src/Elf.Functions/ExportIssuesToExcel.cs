@@ -69,14 +69,15 @@ namespace Elf.Functions
                 worksheet.Cell(1, 6).Value = "Labels";
                 worksheet.Cell(1, 7).Value = "Created By";
                 worksheet.Cell(1, 8).Value = "URL"; 
-                worksheet.Cell(1, 9).Value = "MBR";
-                worksheet.Cell(1, 10).Value = "Comments";               
+                worksheet.Cell(1, 9).Value = "Comments";               
+
+                int row = 2;
 
                 for (int i = 0; i < issues.Count; i++)
                 {
                     var issue = issues[i];
-                    int row = i + 2;
 
+                    // Write issue details in the first row for the issue
                     worksheet.Cell(row, 1).Value = issue.Number;
                     worksheet.Cell(row, 2).Value = issue.Title;
                     worksheet.Cell(row, 3).Value = issue.Body;
@@ -84,12 +85,25 @@ namespace Elf.Functions
                     worksheet.Cell(row, 5).Value = issue.State;
                     worksheet.Cell(row, 6).Value = string.Join(", ", issue.Labels ?? []);
                     worksheet.Cell(row, 7).Value = issue.Author;
-                    worksheet.Cell(row, 8).Value = issue.HtmlUrl;
-                    worksheet.Cell(row, 9).Value = issue.Labels != null && issue.Labels.Contains("MBR") ? "Yes" : "No";
-                    // Concatenate comments with "---" as a delimiter
-                    worksheet.Cell(row, 10).Value = issue.Comments != null && issue.Comments.Any()
-                        ? string.Join(" --- ", issue.Comments.Select(c => $"{c.Author}: {c.Body}"))
-                        : "";                    
+                    worksheet.Cell(row, 8).Value = issue.HtmlUrl;                    
+
+                    // Handle comments
+                    if (issue.Comments != null && issue.Comments.Any())
+                    {
+                        foreach (var comment in issue.Comments)
+                        {
+                            // Write the comment in the current row
+                            worksheet.Cell(row, 9).Value = $"{comment.Author}: {comment.Body}";
+
+                            // Move to the next row for the next comment
+                            row++;
+                        }
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 9).Value = "";
+                        row++; 
+                    }
                 }
 
                 var stream = new MemoryStream();
