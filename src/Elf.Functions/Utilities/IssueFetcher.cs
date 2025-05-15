@@ -54,5 +54,31 @@ namespace Elf.Functions.Utilities
 
             return issues;
         }
+
+        public async Task<List<Label>> FetchLabelsAsync(string owner, string repo)
+        {
+            if (string.IsNullOrEmpty(owner) || string.IsNullOrEmpty(repo))
+            {
+                _logger.LogError("Invalid request. 'Owner' and 'Repo' are required.");
+                throw new ArgumentException("Invalid request. 'Owner' and 'Repo' are required.");
+            }
+
+            var requestUrl = $"issues/{owner}/{repo}/labels";
+            var response = await _httpClient.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to fetch labels from Elf.Api. Status Code: {StatusCode}", response.StatusCode);
+                throw new HttpRequestException($"Failed to fetch labels. Status Code: {response.StatusCode}");
+            }
+
+            var labels = await response.Content.ReadFromJsonAsync<List<Label>>();
+            if (labels == null || labels.Count == 0)
+            {
+                return new List<Label>(); 
+            }
+
+            return labels;
+        }
+
     }
 }
