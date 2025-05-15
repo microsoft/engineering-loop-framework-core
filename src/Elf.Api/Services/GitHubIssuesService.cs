@@ -42,6 +42,62 @@ public class GitHubIssuesService
     }
 
     /// <summary>
+    /// Retrieve a specific issue by its number.
+    /// </summary>
+    /// <param name="owner"></param>
+    /// <param name="repo"></param>
+    /// <param name="issueNumber"></param>
+    /// <param name="includeComments"></param>
+    /// <returns></returns>
+    public async Task<Models.Issue> GetIssueByIdAsync(string owner, string repo, int issueNumber, bool includeComments = false)
+    {
+        RefreshTokenIfNeeded();
+
+        var issue = await _client.Issue.Get(owner, repo, issueNumber);
+        var comments = includeComments
+            ? await GetIssueCommentsAsync(owner, repo, issue.Number)
+            : Enumerable.Empty<IssueComment>();
+
+        return new Elf.Api.Models.Issue
+        {
+            Number = issue.Number,
+            Body = issue.Body,
+            Author = issue.User.Login,
+            Title = issue.Title,
+            State = issue.State.StringValue,
+            Labels = [.. issue.Labels.Select(l => l.Name)],
+            CreatedAt = issue.CreatedAt.DateTime,
+            UpdatedAt = issue.UpdatedAt?.DateTime ?? default,
+            HtmlUrl = issue.HtmlUrl,
+            Comments = comments.Select(c => new Elf.Api.Models.Comment
+            {
+                Author = c.User.Login,
+                Body = c.Body,
+                CreatedAt = c.CreatedAt.DateTime
+            }).ToList() // Ensure Comments is a List
+        };
+        
+    }
+  
+    /// <summary>
+    /// Retrieve multiple issues by their numbers.
+    /// </summary>
+    /// <param name="owner"></param>
+    /// <param name="repo"></param>
+    /// <param name="issueNumbers"></param>
+    /// <param name="includeComments"></param>
+    /// <returns></returns>
+    public async Task<IReadOnlyList<Models.Issue>> GetIssuesByIdsAsync(string owner, string repo, IEnumerable<int> issueNumbers, bool includeComments = false)
+    {
+        RefreshTokenIfNeeded();
+
+        // Fetch issues in parallel
+        var tasks = issueNumbers.Select(issueNumber => GetIssueByIdAsync(owner, repo, issueNumber, includeComments));
+        var issues = await Task.WhenAll(tasks);
+        return issues.Where(issue => issue != null).ToList()!;
+    }
+
+    /// <summary>
     /// Retrieve all issues for a specific repository, optionally filtered by labels.
     /// </summary>
     /// <param name="owner"></param>

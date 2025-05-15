@@ -24,26 +24,66 @@ public class IssuesController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieve all issues for a specific repository, optionally filtered by labels.
+    /// Retrieve issues for a specific repository. Optionally filter by labels, include comments, or fetch specific issues by IDs.
     /// </summary>
     /// <param name="owner">The owner of the repository</param>
     /// <param name="repo">The name of the repository</param>
     /// <param name="labels">The labels to filter by</param>
     /// <param name="includeComments">Flag to include comments</param>
+    /// <param name="issueIds">Comma-separated list of issue IDs to fetch</param>
     /// <returns>A list of issues</returns>
-    [HttpGet("{owner}/{repo}", Name = "GetAllIssues")]
-    [SwaggerOperation(OperationId = "GetAllIssues", Description = "Returns a list of issues associated with a specific GitHub repository.")]    
+    [HttpGet("{owner}/{repo}/")]
+    [SwaggerOperation(OperationId = "GetIssues", Description = "Returns issues for a repository. Optionally filter by labels, include comments, or fetch specific issues by IDs.")]
     [Tags("Issues")]
     [ProducesResponseType(typeof(IEnumerable<Issue>), StatusCodes.Status200OK)]
-    [Produces("application/json")]       
-    public async Task<IActionResult> GetAllIssues(
-        [FromRoute] string owner, 
-        [FromRoute] string repo, 
+    [Produces("application/json")]
+    public async Task<IActionResult> GetIssues(
+        [FromRoute] string owner,
+        [FromRoute] string repo,
         [FromQuery(Name = "labels")] string[]? labels = null,
+        [FromQuery(Name = "comments")] bool includeComments = false,
+        [FromQuery(Name = "ids")] string? issueIds = null)
+    {
+        if (!string.IsNullOrEmpty(issueIds))
+        {
+            // Parse issue IDs from the query string
+            var issueNumbers = issueIds.Split(',').Select(int.Parse).ToList();
+
+            // Fetch specific issues by IDs
+            var issues = await _issuesService.GetIssuesByIdsAsync(owner, repo, issueNumbers, includeComments);
+            return Ok(issues);
+        }
+
+        // Fetch all issues with optional filters
+        var issuesWithComments = await _issuesService.GetIssuesWithCommentsAsync(owner, repo, labels, includeComments);
+        return Ok(issuesWithComments);
+    }
+
+    /// <summary>
+    /// Retrieve a single issue by its number.
+    /// </summary>
+    /// <param name="owner">The owner of the repository</param>
+    /// <param name="repo">The name of the repository</param>
+    /// <param name="issueNumber">The issue number</param>
+    /// <param name="includeComments">Flag to include comments</param>
+    /// <returns>The issue</returns>
+    [HttpGet("{owner}/{repo}/{issueNumber}")]
+    [SwaggerOperation(OperationId = "GetIssueById", Description = "Returns a single issue by its number.")]
+    [Tags("Issues")]
+    [ProducesResponseType(typeof(Issue), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetIssueById(
+        [FromRoute] string owner,
+        [FromRoute] string repo,
+        [FromRoute] int issueNumber,
         [FromQuery(Name = "comments")] bool includeComments = false)
     {
-        var issuesWithComments = await _issuesService.GetIssuesWithCommentsAsync(owner, repo, labels, includeComments);
-        return Ok(issuesWithComments);        
+        var issue = await _issuesService.GetIssueByIdAsync(owner, repo, issueNumber, includeComments);
+        if (issue == null)
+        {
+            return NotFound();
+        }
+        return Ok(issue);
     }
 
     /// <summary>
