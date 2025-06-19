@@ -53,30 +53,37 @@ public class GitHubIssuesService
     {
         RefreshTokenIfNeeded();
 
-        var issue = await _client.Issue.Get(owner, repo, issueNumber);
-        var comments = includeComments
-            ? await GetIssueCommentsAsync(owner, repo, issue.Number)
-            : Enumerable.Empty<IssueComment>();
-
-        return new Elf.Api.Models.Issue
+        try
         {
-            Number = issue.Number,
-            Body = issue.Body,
-            Author = issue.User.Login,
-            Title = issue.Title,
-            State = issue.State.StringValue,
-            Labels = [.. issue.Labels.Select(l => l.Name)],
-            CreatedAt = issue.CreatedAt.DateTime,
-            UpdatedAt = issue.UpdatedAt?.DateTime ?? default,
-            HtmlUrl = issue.HtmlUrl,
-            Comments = comments.Select(c => new Elf.Api.Models.Comment
+
+            var issue = await _client.Issue.Get(owner, repo, issueNumber);
+            var comments = includeComments
+                ? await GetIssueCommentsAsync(owner, repo, issue.Number)
+                : Enumerable.Empty<IssueComment>();
+
+            return new Elf.Api.Models.Issue
             {
-                Author = c.User.Login,
-                Body = c.Body,
-                CreatedAt = c.CreatedAt.DateTime
-            }).ToList() // Ensure Comments is a List
-        };
-        
+                Number = issue.Number,
+                Body = issue.Body,
+                Author = issue.User.Login,
+                Title = issue.Title,
+                State = issue.State.StringValue,
+                Labels = [.. issue.Labels.Select(l => l.Name)],
+                CreatedAt = issue.CreatedAt.DateTime,
+                UpdatedAt = issue.UpdatedAt?.DateTime ?? default,
+                HtmlUrl = issue.HtmlUrl,
+                Comments = comments.Select(c => new Elf.Api.Models.Comment
+                {
+                    Author = c.User.Login,
+                    Body = c.Body,
+                    CreatedAt = c.CreatedAt.DateTime
+                }).ToList() // Ensure Comments is a List
+            };
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
     }
   
     /// <summary>

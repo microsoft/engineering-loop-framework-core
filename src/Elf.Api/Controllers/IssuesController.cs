@@ -81,7 +81,7 @@ public class IssuesController : ControllerBase
         var issue = await _issuesService.GetIssueByIdAsync(owner, repo, issueNumber, includeComments);
         if (issue == null)
         {
-            return NotFound();
+            return NotFound(new { Message = $"Issue #{issueNumber} not found in repository {owner}/{repo}." });
         }
         return Ok(issue);
     }
