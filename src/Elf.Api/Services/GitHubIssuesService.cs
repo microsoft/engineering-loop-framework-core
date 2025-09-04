@@ -42,6 +42,133 @@ public class GitHubIssuesService
     }
 
     /// <summary>
+    /// Create multiple issues in a repository.
+    /// </summary>
+    /// <param name="owner"></param>
+    /// <param name="repo"></param>
+    /// <param name="requests"></param>
+    /// <returns></returns>
+    public async Task<IReadOnlyList<Models.CreateIssueResult>> CreateIssuesAsync(string owner, string repo, IEnumerable<Models.CreateIssueRequest> requests)
+    {
+        RefreshTokenIfNeeded();
+
+        var results = new List<Models.CreateIssueResult>();
+
+        foreach (var req in requests)
+        {
+            if (string.IsNullOrWhiteSpace(req.Title))
+            {
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title ?? "(missing)",
+                    Error = "Title is required."
+                });
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(req.Body))
+            {
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title,
+                    Error = "Body is required."
+                });
+                continue;
+            }
+
+            try
+            {
+                var newIssue = new Octokit.NewIssue(req.Title)
+                {
+                    Body = req.Body
+                };
+                
+                // Add assignees if provided
+                if (req.Assignees is { Length: > 0 })
+                {
+                    foreach (var assignee in req.Assignees.Where(a => !string.IsNullOrWhiteSpace(a)))
+                    {
+                        newIssue.Assignees.Add(assignee);
+                    }
+                }
+
+                // Add labels if provided
+                if (req.Labels is { Length: > 0 })
+                {
+                    foreach (var label in req.Labels.Where(l => !string.IsNullOrWhiteSpace(l)))
+                    {
+                        newIssue.Labels.Add(label);
+                    }
+                }
+
+                // Set milestone if provided
+                if (req.Milestone.HasValue)
+                {
+                    newIssue.Milestone = req.Milestone.Value;
+                }
+
+                // Create the issue
+                var createdIssue = await _client.Issue.Create(owner, repo, newIssue);
+
+                // Map to our Issue model with all required fields
+                var mappedIssue = new Models.Issue
+                {
+                    Number = createdIssue.Number,
+                    Title = createdIssue.Title,
+                    Body = createdIssue.Body ?? string.Empty,
+                    Author = createdIssue.User.Login,
+                    State = createdIssue.State.StringValue,
+                    Labels = createdIssue.Labels.Select(l => l.Name).ToList(),
+                    CreatedAt = createdIssue.CreatedAt.DateTime,
+                    UpdatedAt = createdIssue.UpdatedAt?.DateTime ?? createdIssue.CreatedAt.DateTime,
+                    HtmlUrl = createdIssue.HtmlUrl,
+                    Comments = new List<Models.Comment>() // New issues have no comments initially
+                };                 
+                 
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title,
+                    Issue = mappedIssue
+                });                 
+            }
+            catch (Octokit.ApiValidationException ex)
+            {
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title,
+                    Error = $"Validation failed: {ex.Message}"
+                });
+            }
+            catch (Octokit.RateLimitExceededException ex)
+            {
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title,
+                    Error = $"Rate limit exceeded: reset at {ex.Reset.ToUniversalTime():u}"
+                });
+            }
+            catch (Octokit.NotFoundException)
+            {
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title,
+                    Error = $"Repository {owner}/{repo} not found or access denied."
+                });
+            }
+            catch (Exception ex)
+            {
+                results.Add(new Models.CreateIssueResult
+                {
+                    Title = req.Title,
+                    Error = ex.Message
+                });
+            }            
+        }
+
+        return results;
+    }
+
+    /// <summary>
     /// Retrieve a specific issue by its number.
     /// </summary>
     /// <param name="owner"></param>
