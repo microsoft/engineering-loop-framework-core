@@ -1,7 +1,17 @@
 @Elf.Api_HostAddress = http://localhost:5271
-@owner = <repository-owner>>
-@repo = <repository-name>
+@owner = <your-owner-name>
+@repo = <your-repo-name>
 
+### Get all issues for a specific repository with specific labels, including comments
+GET {{Elf.Api_HostAddress}}/issues/{{owner}}/{{repo}}?comments=true&labels=API%20Management,feedback
+Accept: application/json
+
+### Get issues by ids
+GET {{Elf.Api_HostAddress}}/issues/{{owner}}/{{repo}}?ids=60,61&comments=true
+
+### Get issue by ID
+GET {{Elf.Api_HostAddress}}/issues/{{owner}}/{{repo}}/61?comments=true
+Accept: application/json
 
 ### Get all labels for a specific repository
 GET {{Elf.Api_HostAddress}}/issues/{{owner}}/{{repo}}/labels
@@ -10,3 +20,21 @@ Accept: application/json
 ###
 GET {{Elf.Api_HostAddress}}/swagger/v1/swagger.json
 Accept: application/json
+
+### Create multiple issues
+POST {{Elf.Api_HostAddress}}/issues/{{owner}}/{{repo}}
+Content-Type: application/json
+
+[
+  {
+    "title": "Test Bug: Sample issue creation",
+    "body": "This is a test issue created via the API to validate the create functionality. Please feel free to close this issue after testing.",
+    "labels": ["bug", "notalabel"],
+    "assignees": []
+  },
+  {
+    "title": "Test Feature: Another sample issue",
+    "body": "This is another test issue to validate bulk creation. It demonstrates creating multiple issues in a single request.",
+    "labels": ["enhancement", "question"]
+  }
+]

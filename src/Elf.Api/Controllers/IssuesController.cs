@@ -24,6 +24,43 @@ public class IssuesController : ControllerBase
     }
 
     /// <summary>
+    /// Create multiple issues in a repository.
+    /// </summary>
+    /// <param name="owner">The owner of the repository</param>
+    /// <param name="repo">The name of the repository</param>
+    /// <param name="requests">Array of issue creation requests</param>
+    /// <returns>Results for each issue creation attempt</returns>
+    [HttpPost("{owner}/{repo}")]
+    [SwaggerOperation(OperationId = "CreateIssues", Description = "Creates multiple issues in the specified repository.")]
+    [Tags("Issues")]
+    [ProducesResponseType(typeof(IEnumerable<CreateIssueResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
+    public async Task<IActionResult> CreateIssues(
+        [FromRoute] string owner,
+        [FromRoute] string repo,
+        [FromBody] CreateIssueRequest[] requests)
+    {
+        if (requests == null || requests.Length == 0)
+        {
+            return BadRequest(new { Message = "Request body must contain at least one issue to create." });
+        }
+
+        var results = await _issuesService.CreateIssuesAsync(owner, repo, requests);
+        
+        // Add header if we have mixed results (some succeeded, some failed)
+        var successCount = results.Count(r => r.Success);
+        var totalCount = results.Count;
+        
+        if (successCount > 0 && successCount < totalCount)
+        {
+            Response.Headers.Append("X-Partial-Success", $"{successCount}/{totalCount}");
+        }
+
+        return Ok(results);
+    }
+
+    /// <summary>
     /// Retrieve issues for a specific repository. Optionally filter by labels, include comments, or fetch specific issues by IDs.
     /// </summary>
     /// <param name="owner">The owner of the repository</param>
